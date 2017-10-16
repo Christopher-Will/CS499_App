@@ -15,7 +15,7 @@
         android:text="Email" />
 
     <EditText
-        android:id="@+id/emailField"
+        android:id="@+id/emailFieldAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/textView3"
@@ -29,26 +29,44 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/textView3"
         android:layout_alignStart="@+id/textView3"
-        android:layout_below="@+id/emailField"
+        android:layout_below="@+id/emailFieldAccount"
         android:layout_marginTop="18dp"
         android:text="Password" />
 
     <EditText
-        android:id="@+id/passwordField"
+        android:id="@+id/passwordFieldAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/emailField"
-        android:layout_alignRight="@+id/emailField"
+        android:layout_alignEnd="@+id/emailFieldAccount"
+        android:layout_alignRight="@+id/emailFieldAccount"
         android:layout_alignTop="@+id/textView4"
         android:ems="10"
         android:inputType="textPassword" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/createAccountButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/passwordField"
+        android:layout_below="@+id/passwordFieldAccount"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="150dp"
         android:text="Create Account" />
+
+    <Button
+        android:id="@+id/signInButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/passwordFieldAccount"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="18dp"
+        android:text="Sign in" />
+
+    <TextView
+        android:id="@+id/signInError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/signInButton"
+        android:layout_marginBottom="10dp"
+        android:layout_toEndOf="@+id/signInButton"
+        android:layout_toRightOf="@+id/signInButton" />
 </RelativeLayout>
