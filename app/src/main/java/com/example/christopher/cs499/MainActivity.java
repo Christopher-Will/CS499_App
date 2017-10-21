@@ -20,14 +20,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        User user = new User();
+        setContentView(R.layout.login_page);
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference("users/");
+        final DatabaseReference userRef = database.getReference("users/");
 
 
-        setContentView(R.layout.login_page);
 
         Button createNewAccountButton = (Button) findViewById(R.id.createAccountButton);
         createNewAccountButton.setOnClickListener(new View.OnClickListener() {
@@ -43,21 +41,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 TextView errorMessage = (TextView) findViewById(R.id.signInError);
+
                 if (email.length() == 0 || password.length() == 0) {
                     errorMessage = (TextView) findViewById(R.id.signInError);
                     errorMessage.setText("Email and Password fields cannot be empty");
                     errorMessage.setTextColor(Color.RED);
                 } else {
                     //query their email and password
-                    myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    errorMessage.setText("");
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.hasChild(email.getText().toString())){
+                            if(dataSnapshot.hasChild(email.getText().toString())) {
                                 //this means the email is good so we can go ahead and check their password
-                                String value = dataSnapshot.child(email.getText().toString()).child("password").getValue(String.class);
-                            }else{
-                                //the email does not exist so do not check their password!
+                                String actualPassword = dataSnapshot.child(email.getText().toString()).child("password").getValue(String.class);
+                                if (actualPassword.equals(password.getText().toString())) {
+                                    //log them into the main activity
+                                    startActivity(new Intent(MainActivity.this, homePage.class));
+                                }
                             }
+                            //if we reach this point then their email and/or password was wrong, so set an error message
+                            TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
+                            wrongInfo.setText("email and password do not match");
+                            wrongInfo.setTextColor(Color.RED);
                         }
 
                         @Override

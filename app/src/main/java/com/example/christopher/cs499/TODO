@@ -1,0 +1,2 @@
+1. strip the period from the user's email so test@example.com --> test@examplecom because JSON can't have periods as keys
+2. the wrongInfo error message should go back to being empty if the user enters no info for their email and password
