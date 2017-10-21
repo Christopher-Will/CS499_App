@@ -91,8 +91,8 @@
 
     <TextView
         android:id="@+id/firstNameError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="21dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="26dp"
         android:textSize="8sp"
@@ -101,8 +101,8 @@
 
     <TextView
         android:id="@+id/lastNameError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="164dp"
+        android:layout_height="15dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="26dp"
         android:textSize="8sp"
@@ -111,8 +111,8 @@
 
     <TextView
         android:id="@+id/emailError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="162dp"
+        android:layout_height="23dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="26dp"
         android:textSize="8sp"
@@ -121,8 +121,8 @@
 
     <TextView
         android:id="@+id/passwordError"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="156dp"
+        android:layout_height="37dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="26dp"
         android:textSize="8sp"

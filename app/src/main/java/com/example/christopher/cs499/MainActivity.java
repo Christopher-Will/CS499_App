@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.login_page);
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference userRef = database.getReference("users/");
+        final DatabaseReference userRef = database.getReference();
 
 
 
@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 TextView errorMessage = (TextView) findViewById(R.id.signInError);
-
+                TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
+                wrongInfo.setText("");
                 if (email.length() == 0 || password.length() == 0) {
                     errorMessage = (TextView) findViewById(R.id.signInError);
                     errorMessage.setText("Email and Password fields cannot be empty");
@@ -59,16 +60,14 @@ public class MainActivity extends AppCompatActivity {
                                     //log them into the main activity
                                     startActivity(new Intent(MainActivity.this, homePage.class));
                                 }
+                            }else{
+                                TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
+                                wrongInfo.setText("email and password do not match");
+                                wrongInfo.setTextColor(Color.RED);
                             }
-                            //if we reach this point then their email and/or password was wrong, so set an error message
-                            TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
-                            wrongInfo.setText("email and password do not match");
-                            wrongInfo.setTextColor(Color.RED);
                         }
-
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
                         }
                     });
 
