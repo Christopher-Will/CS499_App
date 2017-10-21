@@ -17,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView errorMessage = (TextView) findViewById(R.id.signInError);
                 TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
                 wrongInfo.setText("");
+                final String userEmail = email.getText().toString().replace(".", "");
                 if (email.length() == 0 || password.length() == 0) {
                     errorMessage = (TextView) findViewById(R.id.signInError);
                     errorMessage.setText("Email and Password fields cannot be empty");
@@ -53,12 +55,16 @@ public class MainActivity extends AppCompatActivity {
                     userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.hasChild(email.getText().toString())) {
+                            if(dataSnapshot.hasChild(userEmail)) {
                                 //this means the email is good so we can go ahead and check their password
-                                String actualPassword = dataSnapshot.child(email.getText().toString()).child("password").getValue(String.class);
+                                String actualPassword = dataSnapshot.child(userEmail).child("password").getValue(String.class);
                                 if (actualPassword.equals(password.getText().toString())) {
                                     //log them into the main activity
                                     startActivity(new Intent(MainActivity.this, homePage.class));
+                                }else{
+                                    TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
+                                    wrongInfo.setText("incorrect email and password ");
+                                    wrongInfo.setTextColor(Color.RED);
                                 }
                             }else{
                                 TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);

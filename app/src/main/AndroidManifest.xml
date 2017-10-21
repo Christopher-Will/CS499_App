@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".createAccount" />
-        <activity android:name=".homePage"></activity>
+        <activity android:name=".homePage" />
+        <activity android:name=".lawyerHome"></activity>
     </application>
 
 </manifest>

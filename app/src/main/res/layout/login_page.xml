@@ -59,7 +59,8 @@
         android:layout_below="@+id/passwordFieldAccount"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="18dp"
-        android:text="Sign in" />
+        android:text="Sign in"
+        android:textSize="10sp" />
 
     <TextView
         android:id="@+id/signInError"

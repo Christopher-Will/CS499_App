@@ -9,13 +9,42 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class createAccount extends AppCompatActivity {
+
+    public void clearErrors(TextView fName, TextView lName, TextView email,
+                            TextView password, TextView address, TextView barCode){
+        fName.setText("");
+        lName.setText("");
+        email.setText("");
+        password.setText("");
+        address.setText("");
+        barCode.setText("");
+    }
+    public void clearTextFields(EditText fName, EditText lName, EditText email, EditText password,
+                                EditText confirmPassword, EditText address, EditText barCode){
+        fName.setText("");
+        lName.setText("");
+        email.setText("");
+        password.setText("");
+        confirmPassword.setText("");
+        address.setText("");
+        barCode.setText("");
+    }
+
+
+    public boolean haveNoErrors(String fName, String lName, String email,
+                                String password, String address, String barCode){
+        return(fName.equals("") && lName.equals("") && email.equals("") && password.equals("")
+        && address.equals("") && barCode.equals(""));
+    }
 
     public boolean checkCapital(String password){
         for(int i = 0; i < password.length(); i++){
@@ -41,13 +70,67 @@ public class createAccount extends AppCompatActivity {
         }
         return false;
     }
+    public void checkFirstName(EditText firstName, TextView fNameError){
+        if(firstName.length() == 0){
+            fNameError.setText("Please enter your first name");
+            fNameError.setTextColor(Color.RED);
+        }else{
+            fNameError.setText("");
+        }
+    }
+    public void checkLastName(EditText lastName, TextView lNameError){
+        if(lastName.length() == 0){
+            lNameError.setText("Please enter your last name");
+            lNameError.setTextColor(Color.RED);
+        }else{
+            lNameError.setText("");
+        }
+    }
+    public void checkEmail(EditText email, TextView emailError){
+        if(email.length() == 0 || !email.getText().toString().contains("@")){
+            emailError.setText("Invalid email");
+            emailError.setTextColor(Color.RED);
+        }else{
+            emailError.setText("");
+        }
+    }
+
+    public void checkPassword(EditText password, EditText confirmPassword, TextView passwordError){
+        if(!checkCapital(password.getText().toString()) || !checkSymbol(password.getText().toString())
+                || !checkNumber(password.getText().toString()) || !(password.getText().toString().length() > 7)){
+            passwordError.setText("Password requires 1 symbol, number, capital letter, and must be more than 7 characters");
+            passwordError.setTextColor(Color.RED);
+        }else if(!password.getText().toString().equals(confirmPassword.getText().toString())
+                || password.length() == 0 || confirmPassword.length() == 0){
+            passwordError.setText("Passwords do not match");
+            passwordError.setTextColor(Color.RED);
+        }else{
+            passwordError.setText("");
+        }
+    }
+    public void checkAddress(EditText addressField, TextView addressError){
+        if(addressField.length() == 0){
+            addressError.setText("invalid address");
+            addressError.setTextColor(Color.RED);
+        }else{
+            addressError.setText("");
+        }
+    }
+    public void checkBarcode(EditText barCodeField, TextView barCodeError){
+        if(barCodeField.length() == 0){
+            barCodeError.setText("invalid barcode");
+            barCodeError.setTextColor(Color.RED);
+        }else{
+            barCodeError.setText("");
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_account);
 
-        Button createAccount = (Button) findViewById(R.id.makeAccountButton);
+        final Button createAccount = (Button) findViewById(R.id.makeAccountButton);
         final EditText password = (EditText) findViewById(R.id.passwordFieldAccount);
         password.addTextChangedListener(new TextWatcher() {
             @Override
@@ -60,7 +143,9 @@ public class createAccount extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 String userPassword = password.getText().toString();
                 TextView passwordError = (TextView) findViewById(R.id.passwordError);
-                if(!checkCapital(userPassword) || !checkSymbol(userPassword) || !checkNumber(userPassword) || !(userPassword.length() > 7)){
+
+                if(!checkCapital(userPassword) || !checkSymbol(userPassword)
+                        || !checkNumber(userPassword) || !(userPassword.length() > 7)){
                     passwordError.setText("Password requires 1 symbol, number, capital letter, and must be more than 7 characters");
                     passwordError.setTextColor(Color.RED);
                 }else{
@@ -68,57 +153,85 @@ public class createAccount extends AppCompatActivity {
                 }
             }
         });
-        createAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText firstName = (EditText) findViewById(R.id.firstNameField);
-                EditText lastName = (EditText) findViewById(R.id.lastNameField);
-                EditText email = (EditText) findViewById(R.id.emailFieldAccount);
-                EditText password = (EditText) findViewById(R.id.passwordFieldAccount);
-                EditText confirmPassword = (EditText) findViewById(R.id.confirmPasswordField);
+        ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
+        final EditText addressField = (EditText) findViewById(R.id.addressField);
+        final EditText barCodeField = (EditText) findViewById(R.id.barCodeField);
+        final EditText firstName = (EditText) findViewById(R.id.firstNameField);
+        final EditText lastName = (EditText) findViewById(R.id.lastNameField);
+        final EditText email = (EditText) findViewById(R.id.emailFieldAccount);
+        final EditText confirmPassword = (EditText) findViewById(R.id.confirmPasswordField);
+        final String userEmail = email.getText().toString().replace(".", "");
 
+
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 TextView fNameError = (TextView) findViewById(R.id.firstNameError);
                 TextView lNameError = (TextView) findViewById(R.id.lastNameError);
                 TextView emailError = (TextView) findViewById(R.id.emailError);
                 TextView passwordError = (TextView) findViewById(R.id.passwordError);
+                TextView addressError = (TextView) findViewById(R.id.addressError);
+                TextView barCodeError = (TextView) findViewById(R.id.barCodeError);
+                clearErrors(fNameError, lNameError, emailError, passwordError, addressError, barCodeError);
+                clearTextFields(firstName, lastName, email, password, confirmPassword, addressField, barCodeField);
+                if(isChecked){
+                    //user wants to sign up as a lawyer so display the address and bar code fields
+                    addressField.setVisibility(View.VISIBLE);
+                    barCodeField.setVisibility(View.VISIBLE);
+                }else{
+                    //hide the address and bar code fields
+                    addressField.setVisibility(View.INVISIBLE);
+                    barCodeField.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
 
-                if(firstName.length() == 0){
-                    fNameError.setText("Please enter your first name");
-                    fNameError.setTextColor(Color.RED);
-                }else{
-                    fNameError.setText("");
-                }
-                if(lastName.length() == 0){
-                    lNameError.setText("Please enter your last name");
-                    lNameError.setTextColor(Color.RED);
-                }else{
-                    lNameError.setText("");
+        createAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView fNameError = (TextView) findViewById(R.id.firstNameError);
+                TextView lNameError = (TextView) findViewById(R.id.lastNameError);
+                TextView emailError = (TextView) findViewById(R.id.emailError);
+                TextView passwordError = (TextView) findViewById(R.id.passwordError);
+                TextView addressError = (TextView) findViewById(R.id.addressError);
+                TextView barCodeError = (TextView) findViewById(R.id.barCodeError);
+
+                checkFirstName(firstName, fNameError);
+                checkLastName(lastName, lNameError);
+                checkEmail(email, emailError);
+                checkPassword(password, confirmPassword, passwordError);
+
+                //extra checks if the user is a lawyer
+                if(addressField.getVisibility() == View.VISIBLE){ //this means the user is a lawyer
+                    checkAddress(addressField, addressError);
+                    checkBarcode(barCodeField, barCodeError);
                 }
 
-                if(email.length() == 0 || !email.getText().toString().contains("@")){
-                    emailError.setText("Invalid email");
-                    emailError.setTextColor(Color.RED);
-                }else{
-                    emailError.setText("");
-                }
-                if(!password.getText().toString().equals(confirmPassword.getText().toString())){
-                    passwordError.setText("Passwords do not match");
-                    passwordError.setTextColor(Color.RED);
-                }else{
-                    passwordError.setText("");
-                }
-                if(fNameError.getText().toString().equals("") && lNameError.getText().toString().equals("") &&
-                        emailError.getText().toString().equals("") && passwordError.getText().toString().equals("")){
-                    //add them to the database  and then log them in to the main page
+                if(haveNoErrors(fNameError.getText().toString(), lNameError.getText().toString(),
+                        emailError.getText().toString(), passwordError.getText().toString(),
+                        addressError.getText().toString(), barCodeError.getText().toString())){
                     final FirebaseDatabase database = FirebaseDatabase.getInstance();
                     final DatabaseReference userRef = database.getReference();
-                    userRef.child(email.getText().toString());
-                    //userRef.setValue(email.getText().toString());
-                    final DatabaseReference emailRef = database.getReference(email.getText().toString());
-                    emailRef.child("firstName").setValue(firstName.getText().toString());
-                    emailRef.child("lastName").setValue(lastName.getText().toString());
-                    emailRef.child("password").setValue(password.getText().toString());
-                    startActivity(new Intent(createAccount.this, homePage.class));
+                    userRef.child(userEmail);
+                    final DatabaseReference emailRef = database.getReference(userEmail);
+                    if(addressField.getVisibility() == View.INVISIBLE){
+                        //no address field is given, so they must be a user
+                        User newUser = new User();
+                        newUser.insertName(firstName.getText().toString(), lastName.getText().toString(), emailRef);
+                        newUser.insertPassword(password.getText().toString(), emailRef);
+                        newUser.setEmail(userEmail);
+                        startActivity(new Intent(createAccount.this, homePage.class));
+                    }else{
+                        //have an address field so they must be a lawyer
+                        Lawyer newLawyer = new Lawyer();
+                        newLawyer.insertName(firstName.getText().toString(), lastName.getText().toString(), emailRef);
+                        newLawyer.insertPassword(password.getText().toString(), emailRef);
+                        newLawyer.setEmail(userEmail);
+                        newLawyer.insertAddress(addressField.getText().toString(), emailRef);
+                        newLawyer.insertBarcode(barCodeField.getText().toString(), emailRef);
+                        startActivity(new Intent(createAccount.this, lawyerHome.class));
+                    }
+
                 }
 
             }

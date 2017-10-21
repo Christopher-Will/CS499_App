@@ -26,7 +26,7 @@
         android:hint="First Name"
         android:inputType="textPersonName"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Last Name"
         android:inputType="textPersonName"
@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
@@ -58,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
@@ -70,7 +70,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Confirm Password"
         android:inputType="textPassword"
@@ -114,19 +114,81 @@
         android:layout_width="162dp"
         android:layout_height="23dp"
         android:layout_marginLeft="0dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginTop="20dp"
         android:textSize="8sp"
         app:layout_constraintLeft_toRightOf="@+id/emailFieldAccount"
         app:layout_constraintTop_toTopOf="@+id/emailFieldAccount" />
 
     <TextView
         android:id="@+id/passwordError"
-        android:layout_width="156dp"
-        android:layout_height="37dp"
+        android:layout_width="158dp"
+        android:layout_height="26dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="26dp"
         android:textSize="8sp"
         app:layout_constraintLeft_toRightOf="@+id/confirmPasswordField"
         app:layout_constraintTop_toTopOf="@+id/confirmPasswordField" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton"
+        android:layout_width="103dp"
+        android:layout_height="47dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Create Lawyer Account"
+        android:textOff="normal account"
+        android:textOn="lawyer account"
+        android:textSize="10sp"
+        app:layout_constraintLeft_toRightOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="creare lawyer account"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <EditText
+        android:id="@+id/barCodeField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Bar Code"
+        android:inputType="textPersonName"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirmPasswordField" />
+
+    <TextView
+        android:id="@+id/barCodeError"
+        android:layout_width="140dp"
+        android:layout_height="15dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="28dp"
+        android:textSize="8sp"
+        app:layout_constraintLeft_toRightOf="@+id/barCodeField"
+        app:layout_constraintTop_toTopOf="@+id/barCodeField" />
+
+    <EditText
+        android:id="@+id/addressField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Law Firm Address"
+        android:inputType="textPersonName"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/barCodeField" />
+
+    <TextView
+        android:id="@+id/addressError"
+        android:layout_width="146dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="-1dp"
+        android:layout_marginTop="23dp"
+        android:textSize="8sp"
+        app:layout_constraintLeft_toRightOf="@+id/addressField"
+        app:layout_constraintTop_toTopOf="@+id/addressField" />
 
 </android.support.constraint.ConstraintLayout>
