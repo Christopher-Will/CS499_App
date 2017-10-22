@@ -1,1 +1,1 @@
-1. strip the period from the user's email so test@example.com --> test@examplecom because JSON can't have periods as keys
+1. make it so the address field for the lawyer uses google's api so that their input is guaranteed to be valid

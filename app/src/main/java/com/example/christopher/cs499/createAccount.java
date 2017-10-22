@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -16,6 +15,7 @@ import android.widget.ToggleButton;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 
 public class createAccount extends AppCompatActivity {
 
@@ -125,10 +125,15 @@ public class createAccount extends AppCompatActivity {
         }
     }
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_account);
+
+
 
         final Button createAccount = (Button) findViewById(R.id.makeAccountButton);
         final EditText password = (EditText) findViewById(R.id.passwordFieldAccount);
@@ -220,7 +225,7 @@ public class createAccount extends AppCompatActivity {
                         newUser.insertName(firstName.getText().toString(), lastName.getText().toString(), emailRef);
                         newUser.insertPassword(password.getText().toString(), emailRef);
                         newUser.setEmail(userEmail);
-                        startActivity(new Intent(createAccount.this, homePage.class));
+                        startActivity(new Intent(createAccount.this, userHome.class));
                     }else{
                         //have an address field so they must be a lawyer
                         Lawyer newLawyer = new Lawyer();

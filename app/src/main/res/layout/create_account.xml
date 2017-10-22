@@ -121,13 +121,13 @@
 
     <TextView
         android:id="@+id/passwordError"
-        android:layout_width="158dp"
-        android:layout_height="26dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="26dp"
+        android:layout_width="135dp"
+        android:layout_height="89dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
         android:textSize="8sp"
-        app:layout_constraintLeft_toRightOf="@+id/confirmPasswordField"
-        app:layout_constraintTop_toTopOf="@+id/confirmPasswordField" />
+        app:layout_constraintLeft_toRightOf="@+id/passwordFieldAccount"
+        app:layout_constraintTop_toTopOf="@+id/passwordFieldAccount" />
 
     <ToggleButton
         android:id="@+id/toggleButton"

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +15,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class MainActivity extends AppCompatActivity {
+public class loginPage extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         createNewAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, createAccount.class));
+                startActivity(new Intent(loginPage.this, createAccount.class));
             }
         });
         final EditText email = (EditText) findViewById(R.id.emailFieldAccount);
@@ -59,8 +58,13 @@ public class MainActivity extends AppCompatActivity {
                                 //this means the email is good so we can go ahead and check their password
                                 String actualPassword = dataSnapshot.child(userEmail).child("password").getValue(String.class);
                                 if (actualPassword.equals(password.getText().toString())) {
-                                    //log them into the main activity
-                                    startActivity(new Intent(MainActivity.this, homePage.class));
+                                    //user has a valid email and password so check if they're a lawyer or
+                                    //not and log them into the approproate page
+                                    if(dataSnapshot.hasChild(userEmail + "/barCode")){
+                                        startActivity(new Intent(loginPage.this, lawyerHome.class));
+                                    }else{
+                                        startActivity(new Intent(loginPage.this, userHome.class));
+                                    }
                                 }else{
                                     TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
                                     wrongInfo.setText("incorrect email and password ");
