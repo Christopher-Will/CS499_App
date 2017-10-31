@@ -12,11 +12,13 @@ public class User {
     protected String lastName;
     protected  String email;
     protected  String password;
+    protected String address;
     public User(){
         firstName = "";
         lastName = "";
         email = "";
         password = "";
+        address = "";
     }
 
     protected void insertName(String fName, String lName, DatabaseReference emailRef){
@@ -29,6 +31,11 @@ public class User {
         this.password = password;
         emailRef.child("password").setValue(password);
     }
+    protected void insertAddress(String address, DatabaseReference emailRef){
+        this.address = address;
+        emailRef.child("address").setValue(address);
+    }
+
     protected void setEmail(String email){
         this.email = email;
     }

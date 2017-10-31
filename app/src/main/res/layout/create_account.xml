@@ -57,24 +57,24 @@
         android:id="@+id/passwordFieldAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emailFieldAccount" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/place_autocomplete_fragment" />
 
     <EditText
         android:id="@+id/confirmPasswordField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Confirm Password"
         android:inputType="textPassword"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passwordFieldAccount" />
 
     <Button
@@ -123,10 +123,10 @@
         android:id="@+id/passwordError"
         android:layout_width="135dp"
         android:layout_height="89dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:textSize="8sp"
-        app:layout_constraintLeft_toRightOf="@+id/passwordFieldAccount"
+        app:layout_constraintStart_toEndOf="@+id/confirmPasswordField"
         app:layout_constraintTop_toTopOf="@+id/passwordFieldAccount" />
 
     <ToggleButton
@@ -149,13 +149,13 @@
         android:id="@+id/barCodeField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Bar Code"
         android:inputType="textPersonName"
         android:visibility="invisible"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirmPasswordField" />
 
     <TextView
@@ -168,27 +168,23 @@
         app:layout_constraintLeft_toRightOf="@+id/barCodeField"
         app:layout_constraintTop_toTopOf="@+id/barCodeField" />
 
-    <EditText
-        android:id="@+id/addressField"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="Law Firm Address"
-        android:inputType="textPersonName"
-        android:visibility="invisible"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barCodeField" />
-
     <TextView
         android:id="@+id/addressError"
         android:layout_width="146dp"
         android:layout_height="20dp"
-        android:layout_marginLeft="-1dp"
-        android:layout_marginTop="23dp"
+        android:layout_marginStart="8dp"
         android:textSize="8sp"
-        app:layout_constraintLeft_toRightOf="@+id/addressField"
-        app:layout_constraintTop_toTopOf="@+id/addressField" />
+        app:layout_constraintStart_toEndOf="@+id/place_autocomplete_fragment"
+        app:layout_constraintTop_toTopOf="@+id/place_autocomplete_fragment" />
+
+    <fragment
+        android:id="@+id/place_autocomplete_fragment"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+        android:layout_width="220dp"
+        android:layout_height="39dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailFieldAccount" />
 
 </android.support.constraint.ConstraintLayout>

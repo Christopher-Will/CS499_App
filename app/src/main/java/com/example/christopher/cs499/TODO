@@ -1,1 +1,2 @@
-1. make it so the address field for the lawyer uses google's api so that their input is guaranteed to be valid
+1. have a way of verifying that the user entered an address
+2. when user/lawyerHome is called it should be passed a user/lawyer object of that account

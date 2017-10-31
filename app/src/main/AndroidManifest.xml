@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
-            android:name="com.google.android.geo."
+            android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA-jnYv_YUzYOWRJBsX4c1D-NsRFvC03Sc"/>
 
         <activity android:name=".loginPage">

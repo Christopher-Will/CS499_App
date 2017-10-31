@@ -8,7 +8,6 @@ import com.google.firebase.database.DatabaseReference;
 
 public class Lawyer extends User {
     private  String barCode;
-    private String address;
     public Lawyer(){
         firstName = "";
         lastName = "";
@@ -16,10 +15,6 @@ public class Lawyer extends User {
         email = "";
         barCode = "";
         address = "";
-    }
-    public void insertAddress(String address, DatabaseReference emailRef){
-        this.address = address;
-        emailRef.child("address").setValue(address);
     }
     public void insertBarcode(String barCode, DatabaseReference emailRef){
         this.barCode = barCode;

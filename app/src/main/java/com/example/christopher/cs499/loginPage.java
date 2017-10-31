@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,7 +64,12 @@ public class loginPage extends AppCompatActivity {
                                     if(dataSnapshot.hasChild(userEmail + "/barCode")){
                                         startActivity(new Intent(loginPage.this, lawyerHome.class));
                                     }else{
-                                        startActivity(new Intent(loginPage.this, userHome.class));
+                                        //get their address
+                                        Intent userActivity = new Intent(loginPage.this, userHome.class);
+                                        userActivity.putExtra("userAddress", (String) dataSnapshot.child(userEmail + "/address").getValue());
+                                        startActivity(userActivity);
+
+                                        //startActivity(new Intent(loginPage.this, userHome.class));
                                     }
                                 }else{
                                     TextView wrongInfo = (TextView) findViewById(R.id.wrongInfoError);
