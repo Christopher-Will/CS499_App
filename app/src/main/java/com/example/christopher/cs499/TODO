@@ -1,2 +1,0 @@
-1. have a way of verifying that the user entered an address
-2. when user/lawyerHome is called it should be passed a user/lawyer object of that account
