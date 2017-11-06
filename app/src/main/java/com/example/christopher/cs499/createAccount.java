@@ -292,9 +292,11 @@ public class createAccount extends FragmentActivity {
                 setPasswordError(validPassword, passwordError);
 
                 //check if the passwords the user gave match and set an error if they don't
-                boolean passwordsMatch = passwordsMatch(password.getText().toString(), confirmPassword.getText().toString());
-                setPasswordMatchError(passwordsMatch, passwordError);
-
+                //only do this check if we know the user gave a valid password
+                if(validPassword){
+                    boolean passwordsMatch = passwordsMatch(password.getText().toString(), confirmPassword.getText().toString());
+                    setPasswordMatchError(passwordsMatch, passwordError);
+                }
                 //if the barcode field is visible then make sure the lawyer gave a valid barcode
                 //and set an error if they didn't
                 if (barCodeField.getVisibility() == View.VISIBLE) {//this means the user is a lawyer
