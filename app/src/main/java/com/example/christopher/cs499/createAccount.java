@@ -1,9 +1,14 @@
 package com.example.christopher.cs499;
 
+import android.*;
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,6 +31,8 @@ import com.google.firebase.database.FirebaseDatabase;
 we read in all their information, validate the fields, and if everything is valid then
 add them to the database and log them in*/
 public class createAccount extends FragmentActivity {
+
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     //remove all the errors next to the fields by setting their text to ""
     public void clearErrors(TextView fName, TextView lName, TextView email,
@@ -182,6 +189,19 @@ public class createAccount extends FragmentActivity {
         }
     }
 
+
+    public void getPhoneNumberPermission(){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
+                    == PackageManager.PERMISSION_DENIED) {
+                Log.d("permission", "permission denied ");
+                String[] permissions = {Manifest.permission.READ_PHONE_STATE};
+
+                requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -260,6 +280,10 @@ public class createAccount extends FragmentActivity {
             }
         });
 
+        getPhoneNumberPermission();
+        TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        final String phoneNumber = tMgr.getLine1Number();
+
         /*when the user clicks the Create Account button we have to validate the value of each
         field. If all the fields are valid then we create an entry for the user in the database and
         log them in to either the User or Lawyer home page. If any field is not valid then we set an
@@ -325,14 +349,14 @@ public class createAccount extends FragmentActivity {
                     //a new user object which will insert all their data into the database
                     if (barCodeField.getVisibility() == View.INVISIBLE) {
                         User newUser = new User(firstName.getText().toString(), lastName.getText().toString(),
-                                password.getText().toString(), userEmail, address[0], emailRef);
+                                password.getText().toString(), userEmail, address[0], phoneNumber, emailRef);
 
                         //redirect the user to the user home page
                         startActivity(new Intent(createAccount.this, userHome.class));
                     } else {//user is a lawyer as the barcode field is visible
                         Lawyer newLawyer = new Lawyer(firstName.getText().toString(), lastName.getText().toString(),
                                 password.getText().toString(), userEmail, barCodeField.getText().toString(),
-                                address[0], emailRef);
+                                address[0], phoneNumber, emailRef);
                         //create a lawyer object and insert all their data into the database, then
                         //redirect them to the lawyer home page
                         startActivity(new Intent(createAccount.this, lawyerHome.class));

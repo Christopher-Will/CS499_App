@@ -15,23 +15,27 @@ public class User {
     protected  String email;
     protected  String password;
     protected String address;
+    protected String phoneNumber;
     public User(){
         firstName = "";
         lastName = "";
         email = "";
         password = "";
         address = "";
+        phoneNumber = "";
     }
     //insert the given fields into the DB
-    public User(String firstName, String lastName, String password, String email, String address, DatabaseReference emailRef){
+    public User(String firstName, String lastName, String password, String email, String address, String phoneNumber, DatabaseReference emailRef){
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
         this.email = email;
         this.address = address;
+        this.phoneNumber = phoneNumber;
         emailRef.child("firstName").setValue(firstName);
         emailRef.child("lastName").setValue(lastName);
         emailRef.child("password").setValue(password);
         emailRef.child("address").setValue(address);
+        emailRef.child("phone").setValue(phoneNumber);
     }
 }

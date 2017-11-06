@@ -20,18 +20,19 @@ public class Lawyer extends User {
     }
     //insert the given values into the DB
     public Lawyer(String firstName, String lastName, String password, String email,
-                  String barCode, String address, DatabaseReference emailRef){
+                  String barCode, String address, String phoneNumber, DatabaseReference emailRef){
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
         this.email = email;
         this.barCode = barCode;
         this.address = address;
+        this.phoneNumber = phoneNumber;
         emailRef.child("firstName").setValue(firstName);
         emailRef.child("lastName").setValue(lastName);
         emailRef.child("password").setValue(password);
         emailRef.child("address").setValue(address);
         emailRef.child("barCode").setValue(barCode);
-
+        emailRef.child("phone").setValue(phoneNumber);
     }
 }
