@@ -140,7 +140,6 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for(DataSnapshot snapshot : dataSnapshot.getChildren()){
                             if(snapshot.hasChild("barCode") && snapshot.hasChild("schedule")){//the snapshot is a lawyer
-
                                 SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
                                 Calendar calendar = Calendar.getInstance();
                                 String day = dayFormat.format(calendar.getTime());
@@ -155,6 +154,9 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                                 String[] startTimePartition = startTimeStr.split(":");
                                 float startTime = Float.valueOf(startTimePartition[0]);
                                 float endTime = Float.valueOf(endTimePartition[0]);
+                                if(endTime == 23f){
+                                    endTime += 59f / 60f;
+                                }
                                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                                 int minute = calendar.get(Calendar.MINUTE);
                                 float currentTime = hour;
