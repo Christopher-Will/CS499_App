@@ -32,6 +32,7 @@ we read in all their information, validate the fields, and if everything is vali
 add them to the database and log them in*/
 public class createAccount extends FragmentActivity {
 
+    //this code is used when requesting permissions. It's value was arbitrarily picked to be 1
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     //remove all the errors next to the fields by setting their text to ""
@@ -190,6 +191,7 @@ public class createAccount extends FragmentActivity {
     }
 
 
+    //request permission to get the user's phone #
     public void getPhoneNumberPermission(){
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE)

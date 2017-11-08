@@ -86,8 +86,13 @@ public class loginPage extends AppCompatActivity {
                                     //the passwords match, so now check if the user is a lawyer or not
                                     if(dataSnapshot.hasChild(userEmail + "/barCode")){
                                         //this user has a barcode field so they must be a lawyer
-                                        //log them into the lawyer home page
-                                        startActivity(new Intent(loginPage.this, lawyerHome.class));
+                                        //log them into the lawyer home page, and save their email as we
+                                        //will need it in this activity
+                                        Intent lawyerActivity = new Intent(loginPage.this, lawyerHome.class);
+                                        lawyerActivity.putExtra("lawyerEmail", (String) userEmail);
+                                        startActivity(lawyerActivity);
+
+                                        //startActivity(new Intent(loginPage.this, lawyerHome.class));
                                     }else{//this user does not have a barcdoe so they are just a regular user
                                         startActivity(new Intent(loginPage.this, userHome.class)); //redirect them to the user home page
                                     }

@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +33,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 public class userHome extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks,
@@ -134,7 +139,29 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-                            if(snapshot.hasChild("barCode")){//the snapshot is a lawyer
+                            if(snapshot.hasChild("barCode") && snapshot.hasChild("schedule")){//the snapshot is a lawyer
+
+                                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
+                                Calendar calendar = Calendar.getInstance();
+                                String day = dayFormat.format(calendar.getTime());
+                                String dayStart = day + "Start";
+                                String startTimeStr = (String) snapshot.child("schedule").child(dayStart).getValue();
+                                if(startTimeStr.equals("N/A")) continue;
+
+
+                                String dayEnd = day + "End";
+                                String endTimeStr = (String) snapshot.child("schedule").child(dayEnd).getValue();
+                                String[] endTimePartition = endTimeStr.split(":");
+                                String[] startTimePartition = startTimeStr.split(":");
+                                float startTime = Float.valueOf(startTimePartition[0]);
+                                float endTime = Float.valueOf(endTimePartition[0]);
+                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                int minute = calendar.get(Calendar.MINUTE);
+                                float currentTime = hour;
+                                currentTime += minute / 60.0f;
+
+                                if(currentTime > endTime || currentTime < startTime) continue;
+
                                 DataSnapshot lawyerAddressDB = snapshot.child("address");
                                 String lawyerAddress = (String) lawyerAddressDB.getValue();
                                 //get the lawyers address and convert it to latitude and longitude coords
