@@ -146,27 +146,26 @@
         app:layout_constraintRight_toRightOf="parent" />
 
     <EditText
-        android:id="@+id/barCodeField"
+        android:id="@+id/referralCodeField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
-        android:hint="Bar Code"
+        android:hint="Refferal Code"
         android:inputType="textPersonName"
         android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirmPasswordField" />
 
     <TextView
-        android:id="@+id/barCodeError"
+        android:id="@+id/referralCodeError"
         android:layout_width="140dp"
         android:layout_height="15dp"
-        android:layout_marginLeft="0dp"
         android:layout_marginTop="28dp"
         android:textSize="8sp"
-        app:layout_constraintLeft_toRightOf="@+id/barCodeField"
-        app:layout_constraintTop_toTopOf="@+id/barCodeField" />
+        app:layout_constraintLeft_toRightOf="@+id/referralCodeField"
+        app:layout_constraintTop_toTopOf="@+id/referralCodeField" />
 
     <TextView
         android:id="@+id/addressError"

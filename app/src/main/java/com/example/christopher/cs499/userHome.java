@@ -1,9 +1,6 @@
 package com.example.christopher.cs499;
 
-import android.*;
 import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,10 +8,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,18 +18,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.vision.barcode.Barcode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -139,7 +130,7 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-                            if(snapshot.hasChild("barCode") && snapshot.hasChild("schedule")){//the snapshot is a lawyer
+                            if(snapshot.hasChild("referralCode") && snapshot.hasChild("schedule")){//the snapshot is a lawyer
                                 SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
                                 Calendar calendar = Calendar.getInstance();
                                 String day = dayFormat.format(calendar.getTime());

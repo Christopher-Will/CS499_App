@@ -1,6 +1,5 @@
 package com.example.christopher.cs499;
 
-import android.*;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -23,46 +22,48 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 /*this class is used to create a new account for a user or lawyer
 we read in all their information, validate the fields, and if everything is valid then
 add them to the database and log them in*/
 public class createAccount extends FragmentActivity {
-
     //this code is used when requesting permissions. It's value was arbitrarily picked to be 1
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     //remove all the errors next to the fields by setting their text to ""
     public void clearErrors(TextView fName, TextView lName, TextView email,
-                            TextView password, TextView address, TextView barCode) {
+                            TextView password, TextView address, TextView referralCode) {
         fName.setText("");
         lName.setText("");
         email.setText("");
         password.setText("");
         address.setText("");
-        barCode.setText("");
+        referralCode.setText("");
     }
 
     //set all the input fields to empty by making their content be ""
     public void clearTextFields(EditText fName, EditText lName, EditText email, EditText password,
-                                EditText confirmPassword, EditText barCode) {
+                                EditText confirmPassword, EditText referralCode) {
         fName.setText("");
         lName.setText("");
         email.setText("");
         password.setText("");
         confirmPassword.setText("");
-        barCode.setText("");
+        referralCode.setText("");
     }
 
     //check that we have no errors from any of the text fields. We have no errors when all the
     //error fields are ""
     public boolean haveNoErrors(String fName, String lName, String email,
-                                String password, String address, String barCode) {
+                                String password, String address, String referralCode) {
         return (fName.equals("") && lName.equals("") && email.equals("") && password.equals("")
-                && address.equals("") && barCode.equals(""));
+                && address.equals("") && referralCode.equals(""));
     }
 
     //return whether the provided string has a capital letter in it or not
@@ -131,9 +132,9 @@ public class createAccount extends FragmentActivity {
         return true;
     }
 
-    //return whether the lawyer's barcode was valid
-    public boolean gaveValidBarcode(String barCode){
-        return barCode.length() != 0;
+    //return whether the user entered anything at all for the referralCode field
+    public boolean gaveReferralCode(String refferalCode){
+        return refferalCode.length() != 0;
     }
 
     //the user didn't give a first or a last name, so set that error field to an appropriate error
@@ -180,16 +181,15 @@ public class createAccount extends FragmentActivity {
         }
     }
 
-    //if the barcode was not valid then have the barcodeError state this. Else set it to ""
-    public void setBarcodeError(boolean validBarcode, TextView barcodeError){
-        if(validBarcode){
-            barcodeError.setText("");
+    //if the referralCode was not valid then have the referralCodeError state this. Else set it to ""
+    public void setreferralCodeError(boolean validReferralCode, TextView referralCodeError){
+        if(validReferralCode){
+            referralCodeError.setText("");
         }else{
-            barcodeError.setText("invalid barcode");
-            barcodeError.setTextColor(Color.RED);
+            referralCodeError.setText("invalid referral code");
+            referralCodeError.setTextColor(Color.RED);
         }
     }
-
 
     //request permission to get the user's phone #
     public void getPhoneNumberPermission(){
@@ -202,6 +202,95 @@ public class createAccount extends FragmentActivity {
                 requestPermissions(permissions, PERMISSION_REQUEST_CODE);
             }
         }
+    }
+
+    /*check whether the email given is unique or not--and if it is then proceed to check if the refferal
+    code is valid. If no errors are present then create a new account for the user/lawyer*/
+    public void checkUniqueEmail(final String email, final DatabaseReference userRef, final TextView emailError,
+                                 final EditText referralCodeField, final TextView referralCodeError,
+                                 final TextView fNameError, final TextView lNameError,
+                                 final TextView passwordError, final TextView addressError,
+                                 final FirebaseDatabase database, final TextView firstName,
+                                 final TextView lastName, final TextView password, final String phoneNumber,
+                                 final String[] address) {
+        //keys in the DB cannot contain "."
+        final String userEmail = email.replace(".", "");
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(userEmail)){//the given email already exists and cannot be used
+                    emailError.setText("invalid email");
+                    emailError.setTextColor(Color.RED);
+                    //if the user is a lawyer then check if their refferalCode is valid
+                    if (referralCodeField.getVisibility() == View.VISIBLE) {//this means the user is a lawyer
+                        //check if they even gave a referralCode
+                        boolean gaveCode = gaveReferralCode(referralCodeField.getText().toString());
+                        setreferralCodeError(gaveCode, referralCodeError);
+
+                        //if they did give a code then see if it is valid
+                        if(gaveCode){
+                            if(dataSnapshot.hasChild("referralCodes/" + referralCodeField.getText().toString())){
+                                referralCodeError.setText("");//code exists so don't set an error
+                            }else{//code does not exist and is invalid
+                                referralCodeError.setText("invalid code");
+                                referralCodeError.setTextColor(Color.RED);
+                            }
+                        }
+                    }
+                } else{ //the given email was unique, so remove any email errors
+                    emailError.setText("");
+                    if (referralCodeField.getVisibility() == View.VISIBLE) {//this means the user is a lawyer
+                        //check if they even gave a referralCode
+                        boolean gaveCode = gaveReferralCode(referralCodeField.getText().toString());
+                        setreferralCodeError(gaveCode, referralCodeError);
+
+                        //if they did give a code then see if it is valid
+                        if(gaveCode){
+                            if(dataSnapshot.hasChild("referralCodes/" + referralCodeField.getText().toString())){
+                                referralCodeError.setText("");//code exists so don't set an error
+                            }else{//code does not exist and is invalid
+                                referralCodeError.setText("invalid code");
+                                referralCodeError.setTextColor(Color.RED);
+                            }
+                        }
+                    }
+                    //if no errors are given then create a new account for the user/lawyer
+                    if (haveNoErrors(fNameError.getText().toString(), lNameError.getText().toString(),
+                            emailError.getText().toString(), passwordError.getText().toString(),
+                            addressError.getText().toString(), referralCodeError.getText().toString())) {
+
+                        userRef.child(userEmail); //insert the email in the database. This will be the key for the user
+
+                        //create a reference to that email
+                        final DatabaseReference emailRef = database.getReference(userEmail);
+                        //if the referralCode field is not visible then we are dealing with a user, so create
+                        //a new user object which will insert all their data into the database
+                        if (referralCodeField.getVisibility() == View.INVISIBLE) {
+                            User newUser = new User(firstName.getText().toString(), lastName.getText().toString(),
+                                    password.getText().toString(), userEmail, address[0], phoneNumber, emailRef);
+
+                            //redirect the user to the user home page
+                            startActivity(new Intent(createAccount.this, userHome.class));
+                        } else {//user is a lawyer as the referralCode field is visible
+                            Lawyer newLawyer = new Lawyer(firstName.getText().toString(), lastName.getText().toString(),
+                                    password.getText().toString(), userEmail, referralCodeField.getText().toString(),
+                                    address[0], phoneNumber, emailRef);
+                            //create a lawyer object and insert all their data into the database, then
+                            //redirect them to the lawyer home page. and save their email as we will need
+                            //it in the lawyerHome activity
+
+                            Intent lawyerActivity = new Intent(createAccount.this, lawyerHome.class);
+                            lawyerActivity.putExtra("lawyerEmail", (String) userEmail);
+                            startActivity(lawyerActivity);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
     @Override
@@ -245,12 +334,12 @@ public class createAccount extends FragmentActivity {
                 setPasswordError(validPassword, passwordError);
             }
         });
-        //if this button is toggled on then the user is a lawyer and so we add the barcode field
-        //if it's toggled off we remove the barcode field
+        //if this button is toggled on then the user is a lawyer and so we add the referralCode field
+        //if it's toggled off we remove the referralCode field
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
 
         //the following values are the 6 fields that every user and lawyer must enter
-        final EditText barCodeField = (EditText) findViewById(R.id.barCodeField);
+        final EditText referralCodeField = (EditText) findViewById(R.id.referralCodeField);
         final EditText firstName = (EditText) findViewById(R.id.firstNameField);
         final EditText lastName = (EditText) findViewById(R.id.lastNameField);
         final EditText email = (EditText) findViewById(R.id.emailFieldAccount);
@@ -268,16 +357,16 @@ public class createAccount extends FragmentActivity {
                 TextView emailError = (TextView) findViewById(R.id.emailError);
                 TextView passwordError = (TextView) findViewById(R.id.passwordError);
                 TextView addressError = (TextView) findViewById(R.id.addressError);
-                TextView barCodeError = (TextView) findViewById(R.id.barCodeError);
+                TextView referralCodeError = (TextView) findViewById(R.id.referralCodeError);
 
                 //set the errors fields to ""
-                clearErrors(fNameError, lNameError, emailError, passwordError, addressError, barCodeError);
+                clearErrors(fNameError, lNameError, emailError, passwordError, addressError, referralCodeError);
                 //set the values of all the text fields to ""
-                clearTextFields(firstName, lastName, email, password, confirmPassword,  barCodeField);
-                if(isChecked){//the toggle button is checked so make the barCodeField visible
-                    barCodeField.setVisibility(View.VISIBLE);
-                }else {//toggle button is not checked so hide the barCodeField
-                    barCodeField.setVisibility(View.INVISIBLE);
+                clearTextFields(firstName, lastName, email, password, confirmPassword,  referralCodeField);
+                if(isChecked){//the toggle button is checked so make the referralCodeField visible
+                    referralCodeField.setVisibility(View.VISIBLE);
+                }else {//toggle button is not checked so hide the referralCodeField
+                    referralCodeField.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -299,7 +388,11 @@ public class createAccount extends FragmentActivity {
                 TextView emailError = (TextView) findViewById(R.id.emailError);
                 TextView passwordError = (TextView) findViewById(R.id.passwordError);
                 TextView addressError = (TextView) findViewById(R.id.addressError);
-                TextView barCodeError = (TextView) findViewById(R.id.barCodeError);
+                TextView referralCodeError = (TextView) findViewById(R.id.referralCodeError);
+                //create a reference to our database
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                final DatabaseReference userRef = database.getReference();
+
 
                 //check if the user gave a first name and set an error if they didn't
                 boolean firstNameExists = gaveName(firstName.getText().toString());
@@ -309,11 +402,6 @@ public class createAccount extends FragmentActivity {
                 boolean lastNameExists = gaveName(lastName.getText().toString());
                 setNameError(lastNameExists, lNameError);
 
-                //check if the user gave a valid email and set an error if they didn't
-                boolean validEmail = gaveValidEmail(email.getText().toString());
-                setEmailError(validEmail, emailError);
-
-                //check if the user gave a valid password and set an error if they didn't
                 boolean validPassword = gaveValidPassword(password.getText().toString());
                 setPasswordError(validPassword, passwordError);
 
@@ -323,47 +411,20 @@ public class createAccount extends FragmentActivity {
                     boolean passwordsMatch = passwordsMatch(password.getText().toString(), confirmPassword.getText().toString());
                     setPasswordMatchError(passwordsMatch, passwordError);
                 }
-                //if the barcode field is visible then make sure the lawyer gave a valid barcode
-                //and set an error if they didn't
-                if (barCodeField.getVisibility() == View.VISIBLE) {//this means the user is a lawyer
-                    boolean validBarcode = gaveValidBarcode(barCodeField.getText().toString());
-                    setBarcodeError(validBarcode, barCodeError);
+                //@@@@@@@@@@check if refferal code is empty
+
+
+                //check if the user gave a valid email and set an error if they didn't
+                boolean validEmail = gaveValidEmail(email.getText().toString());
+                setEmailError(validEmail, emailError);
+
+                //if the email is of valid form then make sure it is unique
+                if(validEmail) {
+                    checkUniqueEmail(email.getText().toString(), userRef, emailError, referralCodeField,
+                            referralCodeError, fNameError, lNameError, passwordError, addressError,
+                            database, firstName, lastName, password, phoneNumber, address);
                 }
 
-                //if all the fields are valid then we will insert the user or lawyer into the database
-                //and log them in to their respective home page
-                if (haveNoErrors(fNameError.getText().toString(), lNameError.getText().toString(),
-                        emailError.getText().toString(), passwordError.getText().toString(),
-                        addressError.getText().toString(), barCodeError.getText().toString())) {
-
-                    //create a reference to our database
-                    final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    final DatabaseReference userRef = database.getReference();
-
-                    //this database does not allow the keys to contains ".", so we simply remove any instance
-                    //of them from the user's email
-                    String userEmail = email.getText().toString().replace(".", "");
-                    userRef.child(userEmail); //insert the email in the database. This will be the key for the user
-
-                    //create a reference to that email
-                    final DatabaseReference emailRef = database.getReference(userEmail);
-                    //if the barcode field is not visible then we are dealing with a user, so create
-                    //a new user object which will insert all their data into the database
-                    if (barCodeField.getVisibility() == View.INVISIBLE) {
-                        User newUser = new User(firstName.getText().toString(), lastName.getText().toString(),
-                                password.getText().toString(), userEmail, address[0], phoneNumber, emailRef);
-
-                        //redirect the user to the user home page
-                        startActivity(new Intent(createAccount.this, userHome.class));
-                    } else {//user is a lawyer as the barcode field is visible
-                        Lawyer newLawyer = new Lawyer(firstName.getText().toString(), lastName.getText().toString(),
-                                password.getText().toString(), userEmail, barCodeField.getText().toString(),
-                                address[0], phoneNumber, emailRef);
-                        //create a lawyer object and insert all their data into the database, then
-                        //redirect them to the lawyer home page
-                        startActivity(new Intent(createAccount.this, lawyerHome.class));
-                    }
-                }
             }
         });
     }

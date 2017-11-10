@@ -7,32 +7,32 @@ import com.google.firebase.database.DatabaseReference;
  */
 
 //this class represents a laywer. it inherits the 5 properties from the User, and gains its own
-// barCode property
+// referralCode property
 public class Lawyer extends User {
-    private  String barCode;
+    private  String referralCode;
     public Lawyer(){
         firstName = "";
         lastName = "";
         password = "";
         email = "";
-        barCode = "";
+        referralCode = "";
         address = "";
     }
     //insert the given values into the DB
     public Lawyer(String firstName, String lastName, String password, String email,
-                  String barCode, String address, String phoneNumber, DatabaseReference emailRef){
+                  String referralCode, String address, String phoneNumber, DatabaseReference emailRef){
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
         this.email = email;
-        this.barCode = barCode;
+        this.referralCode = referralCode;
         this.address = address;
         this.phoneNumber = phoneNumber;
         emailRef.child("firstName").setValue(firstName);
         emailRef.child("lastName").setValue(lastName);
         emailRef.child("password").setValue(password);
         emailRef.child("address").setValue(address);
-        emailRef.child("barCode").setValue(barCode);
+        emailRef.child("referralCode").setValue(referralCode);
         emailRef.child("phone").setValue(phoneNumber);
     }
 }

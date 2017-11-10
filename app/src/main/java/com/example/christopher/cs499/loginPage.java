@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+
 //This is the first page the user or lawyer will see. It prompts them to either login or create an account
 public class loginPage extends AppCompatActivity {
 
@@ -84,8 +85,8 @@ public class loginPage extends AppCompatActivity {
                                 //check if the actual password and supplied password are equal or not
                                 if (actualPassword.equals(password.getText().toString())) {
                                     //the passwords match, so now check if the user is a lawyer or not
-                                    if(dataSnapshot.hasChild(userEmail + "/barCode")){
-                                        //this user has a barcode field so they must be a lawyer
+                                    if(dataSnapshot.hasChild(userEmail + "/referralCode")){
+                                        //this user has a referralCode field so they must be a lawyer
                                         //log them into the lawyer home page, and save their email as we
                                         //will need it in this activity
                                         Intent lawyerActivity = new Intent(loginPage.this, lawyerHome.class);
@@ -93,7 +94,7 @@ public class loginPage extends AppCompatActivity {
                                         startActivity(lawyerActivity);
 
                                         //startActivity(new Intent(loginPage.this, lawyerHome.class));
-                                    }else{//this user does not have a barcdoe so they are just a regular user
+                                    }else{//this user does not have a referralCode so they are just a regular user
                                         startActivity(new Intent(loginPage.this, userHome.class)); //redirect them to the user home page
                                     }
                                 }else{
