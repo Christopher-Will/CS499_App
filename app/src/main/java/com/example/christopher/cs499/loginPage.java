@@ -35,6 +35,7 @@ public class loginPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page);
 
+
         //create an instance of the database. This will be used to query the user's email
         //and password
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
