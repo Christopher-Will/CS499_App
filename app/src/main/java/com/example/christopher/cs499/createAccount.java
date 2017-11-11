@@ -277,8 +277,8 @@ public class createAccount extends FragmentActivity {
                                     address[0], phoneNumber, emailRef);
                             //create a lawyer object and insert all their data into the database, then
                             //redirect them to the lawyer home page. and save their email as we will need
-                            //it in the lawyerHome activity
-
+                            //it in the lawyerHome activity. and remove the referral code from the DB
+                            userRef.child("referralCodes/" + referralCodeField.getText().toString()).removeValue();
                             Intent lawyerActivity = new Intent(createAccount.this, lawyerHome.class);
                             lawyerActivity.putExtra("lawyerEmail", (String) userEmail);
                             startActivity(lawyerActivity);
@@ -302,6 +302,7 @@ public class createAccount extends FragmentActivity {
         final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager()
                 .findFragmentById(R.id.place_autocomplete_fragment);
         //when the user selects their address we save it in the address array
+        autocompleteFragment.setHint("Address");
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -371,6 +372,7 @@ public class createAccount extends FragmentActivity {
             }
         });
 
+
         getPhoneNumberPermission();
         TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
         final String phoneNumber = tMgr.getLine1Number();
@@ -392,7 +394,6 @@ public class createAccount extends FragmentActivity {
                 //create a reference to our database
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
                 final DatabaseReference userRef = database.getReference();
-
 
                 //check if the user gave a first name and set an error if they didn't
                 boolean firstNameExists = gaveName(firstName.getText().toString());

@@ -1,17 +1,25 @@
 package com.example.christopher.cs499;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -120,8 +128,12 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
         //create a reference to the DB
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference userRef = database.getReference();
-        Button findLawyerButton = (Button) findViewById(R.id.findLawyerButton);
-
+        final Button findLawyerButton = (Button) findViewById(R.id.findLawyerButton);
+        final ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.userHome);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        final int height = displayMetrics.heightPixels;
+        final int width = displayMetrics.widthPixels;
         findLawyerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,7 +141,8 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                        int k = 1;
+                        for(final DataSnapshot snapshot : dataSnapshot.getChildren()){
                             if(snapshot.hasChild("referralCode") && snapshot.hasChild("schedule")){//the snapshot is a lawyer
                                 SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
                                 Calendar calendar = Calendar.getInstance();
@@ -172,10 +185,37 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                                     double distance = findDistance(lawyerLatitude, lawyerLongitude,
                                             userLatitude, userLongitude);
                                     double distMiles = distance * 0.621371;
+
                                     //if distMiles < 25 then save that lawyers info
                                     boolean lawyerNearUser = isLawyerNearUser(distMiles);
+                                    if(lawyerNearUser){
+                                        Button callLawyer = new Button(userHome.this);
+                                        String lawyerInfo = snapshot.child("firstName").getValue().toString();
+                                        lawyerInfo += " " + snapshot.child("lastName").getValue().toString();
+                                        String distString = String.format("%.2f miles away", distMiles);
+                                        lawyerInfo += " " + distString;
+                                        callLawyer.setText(lawyerInfo.toString());
+                                        callLawyer.setX(width * 0.05f);
+                                        callLawyer.setY((0.08f * height) + (k * 150));
+                                        layout.addView(callLawyer);
+                                        k++;
+                                        callLawyer.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                    String phone = snapshot.child("phone").getValue().toString();
+                                                    Intent phoneIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts(
+                                                            "tel", phone, null));
+                                                    startActivity(phoneIntent);
+                                            }
+                                        });
+                                    }
                                 }catch(Exception e){e.printStackTrace();}
                             }
+                        }
+                        if(k == 1){//k was never incremented
+                            TextView noLawyersText = (TextView) findViewById(R.id.noLawyers);
+                            noLawyersText.setText("No lawyers could be found within " + ALLOWED_DISTANCE + " miles");
+                            noLawyersText.setTextColor(Color.RED);
                         }
                     }
                     @Override
