@@ -35,7 +35,6 @@ public class loginPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page);
 
-
         //create an instance of the database. This will be used to query the user's email
         //and password
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -69,7 +68,7 @@ public class loginPage extends AppCompatActivity {
                 final String userEmail = email.getText().toString().replace(".", "");
                 //check if the user didn't enter at least one of the fields
                 if (!gaveEmail(email.getText().toString()) || !gavePassword(password.getText().toString())) {
-                    //1 or both fields are balnk so set an error message
+                    //1 or both fields are blank so set an error message
                     errorMessage = (TextView) findViewById(R.id.signInError);
                     errorMessage.setText("Email and Password fields cannot be empty");
                     errorMessage.setTextColor(Color.RED);

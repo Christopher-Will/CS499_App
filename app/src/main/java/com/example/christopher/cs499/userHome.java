@@ -16,9 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,31 +36,21 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-
+//this is the page the user sees when they are logged in. Here they can request a lawyer
 public class userHome extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener{
 
     private final double ALLOWED_DISTANCE = 25; //the search radius, in miles, for finding a lawyer
+    //the objects needed for API's to get the user's location
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
     //this code is used when requesting permissions. It's value was arbitrarily picked to be 1
     private static final int PERMISSION_REQUEST_CODE = 1;
 
+    //the users latitude and longitude
     private double userLatitude;
     private double userLongitude;
-    //get permission to send a text to the lawyer
-    public void getSMSPermission(){
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.SEND_SMS)
-                    == PackageManager.PERMISSION_DENIED) {
-                Log.d("permission", "permission denied to SEND_SMS - requesting it");
-                String[] permissions = {android.Manifest.permission.SEND_SMS};
-
-                requestPermissions(permissions, PERMISSION_REQUEST_CODE);
-            }
-        }
-    }
 
     //get permission to take the users location
     public void getLocationPermission(){
@@ -110,17 +98,9 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                 .setFastestInterval(1 * 1000); // fasetst update interval is 1 second
 
 
-        getSMSPermission();
+        //get permission to get the user's location
         getLocationPermission();
-        /*
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage("8595330220", null, "sms message", null, null);
-        }catch(Exception e){
-            Log.d("D", "printing stack now");
-            e.printStackTrace();
-        }
-        */
+
 
         //this Geocoder object is used to convert the lawyers address to a pair of latitude
         //and longitude coords
@@ -129,7 +109,9 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference userRef = database.getReference();
         final Button findLawyerButton = (Button) findViewById(R.id.findLawyerButton);
+        //this is the current layout for the app
         final ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.userHome);
+        //retrieve the height and width of the current device
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         final int height = displayMetrics.heightPixels;
@@ -141,33 +123,47 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        int k = 1;
+                        int offset = 1; //this counter is used to display all the lawyers as buttons
                         for(final DataSnapshot snapshot : dataSnapshot.getChildren()){
-                            if(snapshot.hasChild("referralCode") && snapshot.hasChild("schedule")){//the snapshot is a lawyer
+                            //only select lawyers who have a schedule set up
+                            if(snapshot.hasChild("referralCode") && snapshot.hasChild("schedule")){
+                                //get the current day of the week
                                 SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
                                 Calendar calendar = Calendar.getInstance();
                                 String day = dayFormat.format(calendar.getTime());
                                 String dayStart = day + "Start";
                                 String startTimeStr = (String) snapshot.child("schedule").child(dayStart).getValue();
+                                //if the current lawyer has N/A as their start time for this day of the week
+                                //then they don't want to be called so go to the next lawyer
                                 if(startTimeStr.equals("N/A")) continue;
 
-
+                                //get the end time of this lawyer
                                 String dayEnd = day + "End";
                                 String endTimeStr = (String) snapshot.child("schedule").child(dayEnd).getValue();
+                                //split the start and end time strings based on :
                                 String[] endTimePartition = endTimeStr.split(":");
                                 String[] startTimePartition = startTimeStr.split(":");
+                                //the hour will be the value at the 0th index of the split string
                                 float startTime = Float.valueOf(startTimePartition[0]);
                                 float endTime = Float.valueOf(endTimePartition[0]);
+                                //if the 0th index for the end time was 23 then the actual end time
+                                //was 23:59 so add 59/60 to the end time
                                 if(endTime == 23f){
                                     endTime += 59f / 60f;
                                 }
+                                //get the current hour and minute
                                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                                 int minute = calendar.get(Calendar.MINUTE);
                                 float currentTime = hour;
+                                //add the # of minutes / 60 to the hour. So if it was 6:30 then
+                                //current time will be 6.5
                                 currentTime += minute / 60.0f;
 
+                                //if the current time is not within the lawyers schedule then
+                                //go to the net lawyer
                                 if(currentTime > endTime || currentTime < startTime) continue;
 
+                                //get the address of the lawyer
                                 DataSnapshot lawyerAddressDB = snapshot.child("address");
                                 String lawyerAddress = (String) lawyerAddressDB.getValue();
                                 //get the lawyers address and convert it to latitude and longitude coords
@@ -185,23 +181,29 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                                     double distance = findDistance(lawyerLatitude, lawyerLongitude,
                                             userLatitude, userLongitude);
                                     double distMiles = distance * 0.621371;
-
-                                    //if distMiles < 25 then save that lawyers info
                                     boolean lawyerNearUser = isLawyerNearUser(distMiles);
+                                    //lawyer is within 25 miles of the user so display them to the user
                                     if(lawyerNearUser){
+                                        //this button will be pressed to call the lawyer
                                         Button callLawyer = new Button(userHome.this);
+                                        //get the lawyers name and distance from user
                                         String lawyerInfo = snapshot.child("firstName").getValue().toString();
                                         lawyerInfo += " " + snapshot.child("lastName").getValue().toString();
                                         String distString = String.format("%.2f miles away", distMiles);
                                         lawyerInfo += " " + distString;
+                                        //set the button to display to the lawyers name and distance
                                         callLawyer.setText(lawyerInfo.toString());
+                                        //add the button to the layout at the given coordinates
                                         callLawyer.setX(width * 0.05f);
-                                        callLawyer.setY((0.08f * height) + (k * 150));
+                                        callLawyer.setY((0.08f * height) + (offset * 150));
                                         layout.addView(callLawyer);
-                                        k++;
+
+                                        offset++; //increment so that the next lawyer will be below this one
                                         callLawyer.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
+                                                //load the users phone with the lawyers phone# already
+                                                //plugged in so the user can call them
                                                     String phone = snapshot.child("phone").getValue().toString();
                                                     Intent phoneIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts(
                                                             "tel", phone, null));
@@ -212,7 +214,8 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                                 }catch(Exception e){e.printStackTrace();}
                             }
                         }
-                        if(k == 1){//k was never incremented
+                        if(offset == 1){//offset was never incremented so no lawyers were found
+                            //set a message describing that there are no lawyers nearby
                             TextView noLawyersText = (TextView) findViewById(R.id.noLawyers);
                             noLawyersText.setText("No lawyers could be found within " + ALLOWED_DISTANCE + " miles");
                             noLawyersText.setTextColor(Color.RED);

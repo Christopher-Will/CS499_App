@@ -204,6 +204,17 @@ public class createAccount extends FragmentActivity {
         }
     }
 
+    //return whether the user gave a unique email
+    public boolean gaveUniqueEmail(String email, DataSnapshot snapshot){
+        return !snapshot.hasChild(email);
+    }
+
+    //return whether the user gave a valid referral code
+    public boolean gaveValidRefferalCode(String referralCode, DataSnapshot snapshot){
+        return snapshot.hasChild("referralCodes/" + referralCode);
+    }
+
+
     /*check whether the email given is unique or not--and if it is then proceed to check if the refferal
     code is valid. If no errors are present then create a new account for the user/lawyer*/
     public void checkUniqueEmail(final String email, final DatabaseReference userRef, final TextView emailError,
@@ -218,7 +229,7 @@ public class createAccount extends FragmentActivity {
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(userEmail)){//the given email already exists and cannot be used
+                if(!gaveUniqueEmail(userEmail, dataSnapshot)){
                     emailError.setText("invalid email");
                     emailError.setTextColor(Color.RED);
                     //if the user is a lawyer then check if their refferalCode is valid
@@ -229,9 +240,9 @@ public class createAccount extends FragmentActivity {
 
                         //if they did give a code then see if it is valid
                         if(gaveCode){
-                            if(dataSnapshot.hasChild("referralCodes/" + referralCodeField.getText().toString())){
+                            if(gaveValidRefferalCode(referralCodeField.getText().toString(), dataSnapshot)){
                                 referralCodeError.setText("");//code exists so don't set an error
-                            }else{//code does not exist and is invalid
+                            }else{
                                 referralCodeError.setText("invalid code");
                                 referralCodeError.setTextColor(Color.RED);
                             }
@@ -246,9 +257,9 @@ public class createAccount extends FragmentActivity {
 
                         //if they did give a code then see if it is valid
                         if(gaveCode){
-                            if(dataSnapshot.hasChild("referralCodes/" + referralCodeField.getText().toString())){
+                            if(gaveValidRefferalCode(referralCodeField.getText().toString(), dataSnapshot)){
                                 referralCodeError.setText("");//code exists so don't set an error
-                            }else{//code does not exist and is invalid
+                            }else{
                                 referralCodeError.setText("invalid code");
                                 referralCodeError.setTextColor(Color.RED);
                             }
@@ -372,7 +383,7 @@ public class createAccount extends FragmentActivity {
             }
         });
 
-
+        //get permission to retrieve the user's phone # and save it
         getPhoneNumberPermission();
         TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
         final String phoneNumber = tMgr.getLine1Number();
@@ -412,8 +423,6 @@ public class createAccount extends FragmentActivity {
                     boolean passwordsMatch = passwordsMatch(password.getText().toString(), confirmPassword.getText().toString());
                     setPasswordMatchError(passwordsMatch, passwordError);
                 }
-                //@@@@@@@@@@check if refferal code is empty
-
 
                 //check if the user gave a valid email and set an error if they didn't
                 boolean validEmail = gaveValidEmail(email.getText().toString());
