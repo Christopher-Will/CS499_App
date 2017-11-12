@@ -38,24 +38,26 @@ public class createAccount extends FragmentActivity {
 
     //remove all the errors next to the fields by setting their text to ""
     public void clearErrors(TextView fName, TextView lName, TextView email,
-                            TextView password, TextView address, TextView referralCode) {
+                            TextView password, TextView address, TextView referralCode, TextView phoneError) {
         fName.setText("");
         lName.setText("");
         email.setText("");
         password.setText("");
         address.setText("");
         referralCode.setText("");
+        phoneError.setText("");
     }
 
     //set all the input fields to empty by making their content be ""
     public void clearTextFields(EditText fName, EditText lName, EditText email, EditText password,
-                                EditText confirmPassword, EditText referralCode) {
+                                EditText confirmPassword, EditText referralCode, EditText phoneNumber) {
         fName.setText("");
         lName.setText("");
         email.setText("");
         password.setText("");
         confirmPassword.setText("");
         referralCode.setText("");
+        phoneNumber.setText("");
     }
 
     //check that we have no errors from any of the text fields. We have no errors when all the
@@ -191,19 +193,6 @@ public class createAccount extends FragmentActivity {
         }
     }
 
-    //request permission to get the user's phone #
-    public void getPhoneNumberPermission(){
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
-                    == PackageManager.PERMISSION_DENIED) {
-                Log.d("permission", "permission denied ");
-                String[] permissions = {Manifest.permission.READ_PHONE_STATE};
-
-                requestPermissions(permissions, PERMISSION_REQUEST_CODE);
-            }
-        }
-    }
-
     //return whether the user gave a unique email
     public boolean gaveUniqueEmail(String email, DataSnapshot snapshot){
         return !snapshot.hasChild(email);
@@ -304,6 +293,25 @@ public class createAccount extends FragmentActivity {
         });
     }
 
+    //return if the phone number given was valid or not. A valid phone # is 10 digits
+    public boolean gaveValidPhone(String phoneNumber){
+        if(phoneNumber.length() != 10) return false; //# must be exactly 10 digits
+        for(int i = 0; i < phoneNumber.length(); i++){
+            char currentNum = phoneNumber.charAt(i);
+            if(!Character.isDigit(currentNum)) return false; //each char must be a digit
+        }
+        return true;
+    }
+    //update the phoneError label based on whether a valid # was given or not
+    public void setPhoneError(boolean validPhone, TextView phoneError){
+        if(validPhone){
+            phoneError.setText("");
+        }else{
+            phoneError.setText("Invalid phone #");
+            phoneError.setTextColor(Color.RED);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -350,31 +358,33 @@ public class createAccount extends FragmentActivity {
         //if it's toggled off we remove the referralCode field
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
 
-        //the following values are the 6 fields that every user and lawyer must enter
+        //the following values are the 7 fields that every user and lawyer must enter
         final EditText referralCodeField = (EditText) findViewById(R.id.referralCodeField);
         final EditText firstName = (EditText) findViewById(R.id.firstNameField);
         final EditText lastName = (EditText) findViewById(R.id.lastNameField);
         final EditText email = (EditText) findViewById(R.id.emailFieldAccount);
         final EditText confirmPassword = (EditText) findViewById(R.id.confirmPasswordField);
         final String userEmail = email.getText().toString();
+        final EditText phoneNumber = (EditText) findViewById(R.id.phoneNumber);
 
         //when the toggle button is pressed we want to set all the errors back to "" as well as set
         //the values for all the fields to ""
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //the following are the 6 possible errors fields which will be set back to ""
+                //the following are the 7 possible errors fields which will be set back to ""
                 TextView fNameError = (TextView) findViewById(R.id.firstNameError);
                 TextView lNameError = (TextView) findViewById(R.id.lastNameError);
                 TextView emailError = (TextView) findViewById(R.id.emailError);
                 TextView passwordError = (TextView) findViewById(R.id.passwordError);
                 TextView addressError = (TextView) findViewById(R.id.addressError);
                 TextView referralCodeError = (TextView) findViewById(R.id.referralCodeError);
+                TextView phoneError = (TextView) findViewById(R.id.phoneError);
 
                 //set the errors fields to ""
-                clearErrors(fNameError, lNameError, emailError, passwordError, addressError, referralCodeError);
+                clearErrors(fNameError, lNameError, emailError, passwordError, addressError, referralCodeError, phoneError);
                 //set the values of all the text fields to ""
-                clearTextFields(firstName, lastName, email, password, confirmPassword,  referralCodeField);
+                clearTextFields(firstName, lastName, email, password, confirmPassword,  referralCodeField, phoneNumber);
                 if(isChecked){//the toggle button is checked so make the referralCodeField visible
                     referralCodeField.setVisibility(View.VISIBLE);
                 }else {//toggle button is not checked so hide the referralCodeField
@@ -382,11 +392,6 @@ public class createAccount extends FragmentActivity {
                 }
             }
         });
-
-        //get permission to retrieve the user's phone # and save it
-        getPhoneNumberPermission();
-        TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-        final String phoneNumber = tMgr.getLine1Number();
 
         /*when the user clicks the Create Account button we have to validate the value of each
         field. If all the fields are valid then we create an entry for the user in the database and
@@ -402,6 +407,7 @@ public class createAccount extends FragmentActivity {
                 TextView passwordError = (TextView) findViewById(R.id.passwordError);
                 TextView addressError = (TextView) findViewById(R.id.addressError);
                 TextView referralCodeError = (TextView) findViewById(R.id.referralCodeError);
+                TextView phoneError = (TextView) findViewById(R.id.phoneError);
                 //create a reference to our database
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
                 final DatabaseReference userRef = database.getReference();
@@ -416,6 +422,10 @@ public class createAccount extends FragmentActivity {
 
                 boolean validPassword = gaveValidPassword(password.getText().toString());
                 setPasswordError(validPassword, passwordError);
+
+                //check if the user gave a valid phone #. Set an error message if they didn't
+                boolean validPhone = gaveValidPhone(phoneNumber.getText().toString());
+                setPhoneError(validPhone, phoneError);
 
                 //check if the passwords the user gave match and set an error if they don't
                 //only do this check if we know the user gave a valid password
@@ -432,7 +442,7 @@ public class createAccount extends FragmentActivity {
                 if(validEmail) {
                     checkUniqueEmail(email.getText().toString(), userRef, emailError, referralCodeField,
                             referralCodeError, fNameError, lNameError, passwordError, addressError,
-                            database, firstName, lastName, password, phoneNumber, address);
+                            database, firstName, lastName, password, phoneNumber.getText().toString(), address);
                 }
 
             }
