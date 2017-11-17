@@ -44,15 +44,6 @@
         android:inputType="textPassword" />
 
     <Button
-        android:id="@+id/createAccountButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/passwordFieldAccount"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
-        android:text="Create Account" />
-
-    <Button
         android:id="@+id/signInButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -270,7 +270,11 @@ public class createAccount extends FragmentActivity {
                                     password.getText().toString(), userEmail, address[0], phoneNumber, emailRef);
 
                             //redirect the user to the user home page
-                            startActivity(new Intent(createAccount.this, userHome.class));
+                            Intent userHome = new Intent(createAccount.this, userHome.class);
+                            userHome.putExtra("hideButtonsAccount", true);
+                            startActivity(userHome);
+
+
                         } else {//user is a lawyer as the referralCode field is visible
                             Lawyer newLawyer = new Lawyer(firstName.getText().toString(), lastName.getText().toString(),
                                     password.getText().toString(), userEmail, referralCodeField.getText().toString(),

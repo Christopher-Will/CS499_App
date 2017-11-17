@@ -24,7 +24,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA-jnYv_YUzYOWRJBsX4c1D-NsRFvC03Sc"/>
 
-        <activity android:name=".loginPage">
+        <activity android:name=".userHome">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,8 +32,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".createAccount" />
-        <activity android:name=".userHome" />
         <activity android:name=".lawyerHome"></activity>
+        <activity android:name=".loginPage"></activity>
     </application>
 
 </manifest>

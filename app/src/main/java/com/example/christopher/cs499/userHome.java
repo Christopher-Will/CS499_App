@@ -81,7 +81,7 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home_page);
+        setContentView(R.layout.user_home_page);
         //instantiate the Google API client to be used to get the user location
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -110,12 +110,43 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
         final DatabaseReference userRef = database.getReference();
         final Button findLawyerButton = (Button) findViewById(R.id.findLawyerButton);
         //this is the current layout for the app
-        final ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.userHome);
-        //retrieve the height and width of the current device
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        final ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.userHome);
         final int height = displayMetrics.heightPixels;
         final int width = displayMetrics.widthPixels;
+        //retrieve the height and width of the current device
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        //if some boolean was set when this layout was called then go ahead and display all the lawyers
+
+        Button signInButton = (Button) findViewById(R.id.homeSignIn);
+        Button createAccountButton = (Button) findViewById(R.id.homeCreateAccount);
+
+        Bundle extras = getIntent().getExtras();
+        try {
+            boolean hideButtonsLogin = extras.getBoolean("hideButtonsLogin");
+            boolean hideButtonsAccount = extras.getBoolean("hideButtonsAccount");
+            if (hideButtonsAccount || hideButtonsLogin) {
+                signInButton.setVisibility(View.INVISIBLE);
+                createAccountButton.setVisibility(View.INVISIBLE);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //load the loginPage
+                startActivity(new Intent(userHome.this, loginPage.class));
+            }
+        });
+        createAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(userHome.this, createAccount.class));
+            }
+        });
+
+
         findLawyerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,10 +235,10 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                                             public void onClick(View view) {
                                                 //load the users phone with the lawyers phone# already
                                                 //plugged in so the user can call them
-                                                    String phone = snapshot.child("phone").getValue().toString();
-                                                    Intent phoneIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts(
-                                                            "tel", phone, null));
-                                                    startActivity(phoneIntent);
+                                                String phone = snapshot.child("phone").getValue().toString();
+                                                Intent phoneIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts(
+                                                        "tel", phone, null));
+                                                startActivity(phoneIntent);
                                             }
                                         });
                                     }
@@ -220,6 +251,7 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                             noLawyersText.setText("No lawyers could be found within " + ALLOWED_DISTANCE + " miles");
                             noLawyersText.setTextColor(Color.RED);
                         }
+
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -296,5 +328,7 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
     @Override
     public void onLocationChanged(Location location) {
     }
+
+
 
 }

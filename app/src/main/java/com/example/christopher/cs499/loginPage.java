@@ -41,6 +41,7 @@ public class loginPage extends AppCompatActivity {
         final DatabaseReference userRef = database.getReference();
 
         //if the user wishes to create a new account then redirect them to that activity
+        /*
         Button createNewAccountButton = (Button) findViewById(R.id.createAccountButton);
         createNewAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +49,7 @@ public class loginPage extends AppCompatActivity {
                 startActivity(new Intent(loginPage.this, createAccount.class));
             }
         });
+        */
 
         //these are the 2 fields that the user must enter to login
         final EditText email = (EditText) findViewById(R.id.emailFieldAccount);
@@ -95,7 +97,10 @@ public class loginPage extends AppCompatActivity {
 
                                         //startActivity(new Intent(loginPage.this, lawyerHome.class));
                                     }else{//this user does not have a referralCode so they are just a regular user
-                                        startActivity(new Intent(loginPage.this, userHome.class)); //redirect them to the user home page
+                                        Intent userHome = new Intent(loginPage.this, userHome.class);
+                                        userHome.putExtra("hideButtonsLogin", true);
+                                        startActivity(userHome);
+
                                     }
                                 }else{
                                     //the password given does not match the one in the DB, so set
