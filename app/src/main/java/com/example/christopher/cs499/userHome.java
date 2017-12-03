@@ -17,7 +17,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,13 +33,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 //this is the page the user sees when they are logged in. Here they can request a lawyer
-public class userHome extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks,
+public class userHome extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener{
 
     private final double ALLOWED_DISTANCE = 25; //the search radius, in miles, for finding a lawyer
@@ -58,7 +63,7 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
             if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
                     == PackageManager.PERMISSION_DENIED) {
 
-                Log.d("permission", "permission denied to SEND_SMS - requesting it");
+                Log.d("permission", "permission denied  - requesting it");
                 String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
 
                 requestPermissions(permissions, PERMISSION_REQUEST_CODE);
@@ -69,7 +74,7 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_DENIED) {
 
-                Log.d("permission", "permission denied to SEND_SMS - requesting it");
+                Log.d("permission", "permission denied - requesting it");
                 String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
 
                 requestPermissions(permissions, PERMISSION_REQUEST_CODE);
@@ -77,6 +82,23 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
             }
         }
     }
+
+
+    public boolean gaveValidEmail(String email){
+        if (email.length() == 0 || !email.contains("@")) {
+            return false;
+        }
+        return true;
+    }
+    public void setEmailError(boolean validEmail, TextView emailError){
+        if(validEmail){
+            emailError.setText("");
+        }else{
+            emailError.setText("Invalid email");
+            emailError.setTextColor(Color.RED);
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,22 +138,34 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
         final int width = displayMetrics.widthPixels;
         //retrieve the height and width of the current device
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        //if some boolean was set when this layout was called then go ahead and display all the lawyers
 
+        //get a reference to the sign in and create account buttons
         Button signInButton = (Button) findViewById(R.id.homeSignIn);
-        Button createAccountButton = (Button) findViewById(R.id.homeCreateAccount);
+        final Button createAccountButton = (Button) findViewById(R.id.homeCreateAccount);
 
-        Bundle extras = getIntent().getExtras();
+        //the email that a fist time user will provide, and any error message associated with it
+        final EditText userHomeEmail = (EditText) findViewById(R.id.userHomeEmail);
+        final TextView userHomeEmailError = (TextView) findViewById(R.id.userHomeEmailError);
+
+        final Bundle extras = getIntent().getExtras();
+        /*if the user accessed userHome by logging in or creating an account then we want to
+        hide those buttons*/
         try {
+            //check if the user accessed this page from either logging in or creating an account
             boolean hideButtonsLogin = extras.getBoolean("hideButtonsLogin");
             boolean hideButtonsAccount = extras.getBoolean("hideButtonsAccount");
-            if (hideButtonsAccount || hideButtonsLogin) {
+            if (hideButtonsAccount || hideButtonsLogin){
+                //user DID access this page by logging in or creating an account so hid those buttons
                 signInButton.setVisibility(View.INVISIBLE);
                 createAccountButton.setVisibility(View.INVISIBLE);
+                //make the email field invisible too
+                userHomeEmail.setVisibility(View.INVISIBLE);
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        //redirect the user to either log in or create an account when they click the corresponding button
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,10 +184,64 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
         findLawyerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //if the email field is visible then we must validate that they gave a valid email
+                if(userHomeEmail.getVisibility() == View.VISIBLE){
+                    //check if they gave a valid email and set any needed errors
+                    boolean gaveValidEmail = gaveValidEmail(userHomeEmail.getText().toString());
+                    setEmailError(gaveValidEmail, userHomeEmailError);
+                    if(!userHomeEmailError.getText().toString().equals("")){
+                        //user gave invalid email so don't continue
+                        return;
+                    }
+                    userHomeEmailError.setText("");
+                    //add their email to the DB
+                    userRef.child(userHomeEmail.getText().toString().replace(".", ""));
+                    final DatabaseReference emailRef = database.getReference(userHomeEmail.getText().toString().replace(".", ""));
+                    //read from the DB and make sure the email doesn't already exist
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            String email = userHomeEmail.getText().toString().replace(".", "");
+                            if(dataSnapshot.hasChild(email)){
+                                //email exists so set error and don't continue
+                                userHomeEmailError.setText("invalid email");
+                                userHomeEmailError.setTextColor(Color.RED);
+                                return;
+                            }
+                            userHomeEmailError.setText("");
+                            //pick a user code for the user from our list and add it to their field in the DB
+                            Iterable<DataSnapshot> userCodes = dataSnapshot.child("userCodes").getChildren();
+                            String userCode = userCodes.iterator().next().getKey(); //the next user code
+
+                            User newUser = new User(email, userCode, emailRef);
+
+                            //remove the given user code from the userCodes field and add it to
+                            //the pendingCodes field
+                            userRef.child("userCodes/" + userCode).removeValue();
+                            userRef.child("pendingUserCodes").child(userCode).setValue("");
+                            final TextView userCodeMessage = (TextView) findViewById(R.id.userCodeMessage);
+                            userCodeMessage.setTextColor(Color.BLACK);
+                            /*Display a message to the user indicating that they must use the given
+                            email and user code to create an account*/
+                            userCodeMessage.setText("Please create an account using " + userHomeEmail.getText().toString() +
+                                    " as your email and " + userCode + " as your user code");
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+
                 //loop over the DB and find all entries with a bar code
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
+                        if(!userHomeEmailError.getText().toString().equals("")){
+                            return;
+                        }
+                        userHomeEmail.setVisibility(View.INVISIBLE);
                         int offset = 1; //this counter is used to display all the lawyers as buttons
                         for(final DataSnapshot snapshot : dataSnapshot.getChildren()){
                             //only select lawyers who have a schedule set up
@@ -222,19 +310,35 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                                         lawyerInfo += " " + snapshot.child("lastName").getValue().toString();
                                         String distString = String.format("%.2f miles away", distMiles);
                                         lawyerInfo += " " + distString;
+                                        final String lawyerText = lawyerInfo;
                                         //set the button to display to the lawyers name and distance
-                                        callLawyer.setText(lawyerInfo.toString());
+                                        callLawyer.setText(lawyerText.toString());
                                         //add the button to the layout at the given coordinates
                                         callLawyer.setX(width * 0.05f);
                                         callLawyer.setY((0.08f * height) + (offset * 150));
                                         layout.addView(callLawyer);
 
                                         offset++; //increment so that the next lawyer will be below this one
+                                        /*when a user clicks on a lawyer treat this as the user having called
+                                        the lawyer. So add the date they contacted the lawyer and the
+                                        lawyers name to their field in the DB*/
                                         callLawyer.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
                                                 //load the users phone with the lawyers phone# already
                                                 //plugged in so the user can call them
+                                                String userEmail;
+                                                //get the users email
+                                                if(createAccountButton.getVisibility() == View.VISIBLE){
+                                                    userEmail = userHomeEmail.getText().toString().replace(".", "");
+                                                }else{
+                                                    userEmail = extras.getString("userEmail").replace(".", "");
+                                                }
+                                                //get the current date and time
+                                                String dateAndTime = DateFormat.getDateTimeInstance().format(new Date());
+                                                /*Add theis date/time and lawyer name to the DB */
+                                                userRef.child(userEmail).child("appHistory").child(dateAndTime).setValue(lawyerText);
+
                                                 String phone = snapshot.child("phone").getValue().toString();
                                                 Intent phoneIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts(
                                                         "tel", phone, null));
@@ -251,7 +355,6 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
                             noLawyersText.setText("No lawyers could be found within " + ALLOWED_DISTANCE + " miles");
                             noLawyersText.setTextColor(Color.RED);
                         }
-
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -328,7 +431,5 @@ public class userHome extends AppCompatActivity  implements GoogleApiClient.Conn
     @Override
     public void onLocationChanged(Location location) {
     }
-
-
 
 }

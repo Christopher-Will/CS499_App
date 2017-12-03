@@ -16,6 +16,7 @@ public class User {
     protected  String password;
     protected String address;
     protected String phoneNumber;
+    protected String userCode;
     public User(){
         firstName = "";
         lastName = "";
@@ -37,5 +38,10 @@ public class User {
         emailRef.child("password").setValue(password);
         emailRef.child("address").setValue(address);
         emailRef.child("phone").setValue(phoneNumber);
+    }
+    public User(String email, String userCode, DatabaseReference emailRef){
+        this.email = email;
+        this.userCode = userCode;
+        emailRef.child("userCode").setValue(userCode);
     }
 }

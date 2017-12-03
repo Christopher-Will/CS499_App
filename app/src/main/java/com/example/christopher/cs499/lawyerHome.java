@@ -1,5 +1,6 @@
 package com.example.christopher.cs499;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -112,6 +113,14 @@ public class lawyerHome extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lawyer_home);
+        Button viewUserData = (Button) findViewById(R.id.viewUserData);
+        viewUserData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(lawyerHome.this, ViewUserData.class));
+            }
+        });
+
 
         //error message if the schedule created was not valid
         final TextView scheduleError = (TextView) findViewById(R.id.scheduleError);

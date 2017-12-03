@@ -159,7 +159,7 @@
         app:layout_constraintTop_toBottomOf="@+id/confirmPasswordField" />
 
     <TextView
-        android:id="@+id/referralCodeError"
+        android:id="@+id/codeError"
         android:layout_width="140dp"
         android:layout_height="15dp"
         android:layout_marginTop="28dp"
@@ -211,5 +211,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/phoneNumber"
         app:layout_constraintTop_toTopOf="@+id/phoneNumber" />
+
+    <EditText
+        android:id="@+id/userCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="User Code"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.052"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirmPasswordField" />
 
 </android.support.constraint.ConstraintLayout>

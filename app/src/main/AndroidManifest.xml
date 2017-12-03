@@ -2,16 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.christopher.cs499">
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-
-
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -22,7 +18,7 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA-jnYv_YUzYOWRJBsX4c1D-NsRFvC03Sc"/>
+            android:value="AIzaSyA-jnYv_YUzYOWRJBsX4c1D-NsRFvC03Sc" />
 
         <activity android:name=".userHome">
             <intent-filter>
@@ -32,8 +28,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".createAccount" />
-        <activity android:name=".lawyerHome"></activity>
-        <activity android:name=".loginPage"></activity>
+        <activity android:name=".lawyerHome" />
+        <activity android:name=".loginPage" />
+        <activity android:name=".ViewUserData"></activity>
     </application>
 
 </manifest>

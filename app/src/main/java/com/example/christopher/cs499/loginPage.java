@@ -40,16 +40,6 @@ public class loginPage extends AppCompatActivity {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference userRef = database.getReference();
 
-        //if the user wishes to create a new account then redirect them to that activity
-        /*
-        Button createNewAccountButton = (Button) findViewById(R.id.createAccountButton);
-        createNewAccountButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(loginPage.this, createAccount.class));
-            }
-        });
-        */
 
         //these are the 2 fields that the user must enter to login
         final EditText email = (EditText) findViewById(R.id.emailFieldAccount);
@@ -98,7 +88,11 @@ public class loginPage extends AppCompatActivity {
                                         //startActivity(new Intent(loginPage.this, lawyerHome.class));
                                     }else{//this user does not have a referralCode so they are just a regular user
                                         Intent userHome = new Intent(loginPage.this, userHome.class);
+                                      /* we are about to access userHome from the login page and so we need to
+                                         hide any buttons that may be on userHome. put an extra stating this so we know
+                                         to hide the create account and sign in buttons when loading the next view  */
                                         userHome.putExtra("hideButtonsLogin", true);
+                                        userHome.putExtra("userEmail", userEmail); //save the users email
                                         startActivity(userHome);
 
                                     }
